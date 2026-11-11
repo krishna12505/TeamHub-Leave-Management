@@ -98,24 +98,25 @@ def get_pending_leave_days(
 # 1. MYSQL DATABASE CONNECTION
 
 
+
+
 def get_connection():
-
     try:
-
         connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
+            host=os.getenv("MYSQL_HOST", "localhost"),
+            user=os.getenv("MYSQL_USER", "root"),
             password=os.getenv("MYSQL_PASSWORD"),
-            database="teamhub_db",
-            port=3306
+            database=os.getenv("MYSQL_DATABASE", "teamhub_db"),
+            port=int(os.getenv("MYSQL_PORT", "3306")),
+            ssl_ca=os.getenv("MYSQL_SSL_CA") or None,
+            ssl_verify_cert=True,
+            connection_timeout=15
         )
 
         return connection
 
     except Error as e:
-
         print("Database Connection Error:", e)
-
         return None
 
 

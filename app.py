@@ -1,3 +1,4 @@
+
 import os
 import logging
 from datetime import datetime
@@ -13,7 +14,18 @@ from flask import (
     flash
 )
 
+from dotenv import load_dotenv
 from werkzeug.security import check_password_hash
+
+# ==========================================
+# LOAD ENVIRONMENT VARIABLES
+# ==========================================
+
+load_dotenv()
+
+# ==========================================
+# DATABASE IMPORTS
+# ==========================================
 
 from database import (
     get_employee_by_email,
@@ -26,25 +38,32 @@ from database import (
     InsufficientLeaveBalanceError
 )
 
-
-
+# ==========================================
 # APPLICATION CONFIGURATION
-
+# ==========================================
 
 app = Flask(__name__)
 
-app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    "teamhub_development_secret_key"
-)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+if not app.config["SECRET_KEY"]:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not configured."
+    )
+
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+if os.getenv("RENDER"):
+    app.config["SESSION_COOKIE_SECURE"] = True
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
+# ==========================================
 # LOGIN REQUIRED DECORATOR
-
+# ==========================================
 
 def login_required(function):
 
@@ -60,9 +79,9 @@ def login_required(function):
     return wrapper
 
 
-
+# ==========================================
 # ROLE REQUIRED DECORATOR
-
+# ==========================================
 
 def role_required(role):
 
@@ -87,9 +106,9 @@ def role_required(role):
     return decorator
 
 
-
+# ==========================================
 # HOME ROUTE
-
+# ==========================================
 
 @app.route("/")
 def index():
@@ -108,8 +127,9 @@ def index():
     return redirect(url_for("login"))
 
 
-
+# ==========================================
 # LOGIN ROUTE
+# ==========================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -168,9 +188,9 @@ def login():
     return render_template("login.html")
 
 
-
+# ==========================================
 # EMPLOYEE DASHBOARD
-
+# ==========================================
 
 @app.route("/employee/dashboard")
 @login_required
@@ -184,8 +204,6 @@ def employee_dashboard():
         balance = get_leave_balance(employee_id)
 
         leave_requests = get_leave_requests(employee_id)
-
-        # Calculate weekday-only duration for every request.
 
         for leave in leave_requests:
 
@@ -219,8 +237,9 @@ def employee_dashboard():
         return redirect(url_for("login"))
 
 
-
+# ==========================================
 # APPLY FOR LEAVE
+# ==========================================
 
 @app.route("/employee/apply-leave", methods=["GET", "POST"])
 @login_required
@@ -247,9 +266,7 @@ def apply_leave():
 
         employee_id = session["employee_id"]
 
-        
         # CHECK EMPTY FIELDS
-        
 
         if not all([
             leave_type,
@@ -265,9 +282,7 @@ def apply_leave():
 
             return redirect(url_for("apply_leave"))
 
-        
         # VALIDATE LEAVE TYPE
-        
 
         allowed_leave_types = [
             "Casual",
@@ -285,9 +300,7 @@ def apply_leave():
 
             return redirect(url_for("apply_leave"))
 
-        
         # VALIDATE DATE FORMAT
-        
 
         try:
 
@@ -310,9 +323,7 @@ def apply_leave():
 
             return redirect(url_for("apply_leave"))
 
-        
         # VALIDATE DATE RANGE
-        
 
         if end < start:
 
@@ -323,9 +334,7 @@ def apply_leave():
 
             return redirect(url_for("apply_leave"))
 
-        
         # VALIDATE REASON
-        
 
         if len(reason) > 1000:
 
@@ -338,9 +347,7 @@ def apply_leave():
 
         try:
 
-            
             # CHECK EMPLOYEE BALANCE EXISTS
-            
 
             balance = get_leave_balance(employee_id)
 
@@ -354,9 +361,7 @@ def apply_leave():
 
                 return redirect(url_for("apply_leave"))
 
-            
             # CALCULATE WEEKDAY-ONLY LEAVE DAYS
-            
 
             requested_days = calculate_leave_days(
                 start,
@@ -373,12 +378,7 @@ def apply_leave():
 
                 return redirect(url_for("apply_leave"))
 
-            
             # CREATE LEAVE REQUEST
-            
-            # database.py performs the final balance check.
-            # It also accounts for pending requests and
-            # excludes Saturdays and Sundays.
 
             leave_id = create_leave_request(
                 employee_id=employee_id,
@@ -428,9 +428,9 @@ def apply_leave():
     return render_template("apply_leave.html")
 
 
-
+# ==========================================
 # MANAGER DASHBOARD
-
+# ==========================================
 
 @app.route("/manager/dashboard")
 @login_required
@@ -440,8 +440,6 @@ def manager_dashboard():
     try:
 
         leave_requests = get_all_leave_requests()
-
-        # Calculate weekday-only duration for manager view.
 
         for leave in leave_requests:
 
@@ -474,9 +472,9 @@ def manager_dashboard():
         return redirect(url_for("login"))
 
 
-
+# ==========================================
 # APPROVE / REJECT LEAVE REQUEST
-
+# ==========================================
 
 @app.route(
     "/manager/leave/<int:leave_id>/<action>",
@@ -542,9 +540,9 @@ def manage_leave(leave_id, action):
     )
 
 
-
+# ==========================================
 # LOGOUT
-
+# ==========================================
 
 @app.route("/logout")
 @login_required
@@ -560,9 +558,9 @@ def logout():
     return redirect(url_for("login"))
 
 
-
+# ==========================================
 # RUN APPLICATION
-
+# ==========================================
 
 if __name__ == "__main__":
 
