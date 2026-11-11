@@ -4,7 +4,7 @@ import mysql.connector
 from mysql.connector import Error
 from datetime import datetime, timedelta
 
-
+import certifi
 
 # CUSTOM LEAVE BALANCE ERROR
 
@@ -103,12 +103,12 @@ def get_pending_leave_days(
 def get_connection():
     try:
         connection = mysql.connector.connect(
-            host=os.getenv("MYSQL_HOST", "localhost"),
-            user=os.getenv("MYSQL_USER", "root"),
+            host=os.getenv("MYSQL_HOST"),
+            user=os.getenv("MYSQL_USER"),
             password=os.getenv("MYSQL_PASSWORD"),
-            database=os.getenv("MYSQL_DATABASE", "teamhub_db"),
-            port=int(os.getenv("MYSQL_PORT", "3306")),
-            ssl_ca=os.getenv("MYSQL_SSL_CA") or None,
+            database=os.getenv("MYSQL_DATABASE"),
+            port=int(os.getenv("MYSQL_PORT", "4000")),
+            ssl_ca=certifi.where(),
             ssl_verify_cert=True,
             connection_timeout=15
         )
