@@ -1,0 +1,646 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TeamHub | Manager Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/manager_dashboard.css') }}">
+</head>
+
+<body>
+
+{% set counts = namespace(annual=0, sick=0, other=0, casual=0) %}
+
+{% for leave in leave_requests %}
+    {% set leave_name = leave.leave_type|lower %}
+
+    {% if 'annual' in leave_name or 'earned' in leave_name %}
+        {% set counts.annual = counts.annual + 1 %}
+    {% elif 'sick' in leave_name %}
+        {% set counts.sick = counts.sick + 1 %}
+    {% elif 'casual' in leave_name %}
+        {% set counts.casual = counts.casual + 1 %}
+    {% else %}
+        {% set counts.other = counts.other + 1 %}
+    {% endif %}
+{% endfor %}
+
+{% set total = leave_requests|length %}
+
+{% set annual_end = (counts.annual / total * 100) if total else 0 %}
+{% set sick_end = annual_end + ((counts.sick / total * 100) if total else 0) %}
+{% set other_end = sick_end + ((counts.other / total * 100) if total else 0) %}
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <span class="brand-icon">✣</span>
+            <span>TeamHub</span>
+        </div>
+
+        <div class="nav-title">WORKSPACE</div>
+
+        <nav class="nav-menu">
+
+            <a href="{{ url_for('manager_dashboard') }}"
+               class="nav-link active">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="#leave-activity" class="nav-link">
+                <span class="nav-icon">✉</span>
+                <span>Leave Requests</span>
+            </a>
+
+            <a href="#calendar-section" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Calendar</span>
+            </a>
+
+            <a href="#employee-section" class="nav-link">
+                <span class="nav-icon">♙</span>
+                <span>Employees</span>
+            </a>
+
+            <a href="#weekly-overview" class="nav-link">
+                <span class="nav-icon">◉</span>
+                <span>Leave Overview</span>
+            </a>
+
+            <a href="#leave-types" class="nav-link">
+                <span class="nav-icon">▤</span>
+                <span>Leave Types</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <h4>Account</h4>
+            <p>Manage your TeamHub account securely.</p>
+
+            <a href="{{ url_for('logout') }}"
+               class="nav-link logout-link"
+               onclick="return confirm('Are you sure you want to logout?');">
+                <span class="nav-icon">↪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="page-title">
+                <h1>Leave Management</h1>
+
+                <div class="breadcrumb">
+                    <span>Dashboard</span> / Leave Management
+                </div>
+            </div>
+
+            <div class="topbar-right">
+
+                <div class="global-search">
+                    <span>⌕</span>
+                    <input
+                        type="text"
+                        id="globalSearch"
+                        placeholder="Search employees or requests..."
+                        aria-label="Search dashboard">
+                </div>
+
+                <div class="profile">
+
+                    <div class="profile-avatar">
+                        {{ session.get('name', 'M')[0]|upper }}
+                    </div>
+
+                    <div class="profile-info">
+                        <strong>{{ session.get('name', 'Manager') }}</strong>
+                        <small>Manager</small>
+                    </div>
+
+                    <a href="{{ url_for('logout') }}"
+                       class="top-logout"
+                       onclick="return confirm('Are you sure you want to logout?');">
+                        Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card highlight">
+
+                <div class="summary-label">
+                    <span class="summary-icon">◉</span>
+                    Total Applications
+                </div>
+
+                <h2>{{ total }}</h2>
+
+                <span class="unit">Requests</span>
+
+                <div class="percentage">
+                    <strong>100%</strong>
+                    of recorded requests
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    <span class="summary-icon">▤</span>
+                    Annual / Earned Leave
+                </div>
+
+                <h2>{{ counts.annual }}</h2>
+
+                <span class="unit">Requests</span>
+
+                <div class="percentage">
+                    <strong>
+                        {{ ((counts.annual / total * 100)|round(1)) if total else 0 }}%
+                    </strong>
+                    of total requests
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    <span class="summary-icon">♡</span>
+                    Sick Leave
+                </div>
+
+                <h2>{{ counts.sick }}</h2>
+
+                <span class="unit">Requests</span>
+
+                <div class="percentage">
+                    <strong>
+                        {{ ((counts.sick / total * 100)|round(1)) if total else 0 }}%
+                    </strong>
+                    of total requests
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    <span class="summary-icon">♧</span>
+                    Other / Casual Leave
+                </div>
+
+                <h2>{{ counts.other + counts.casual }}</h2>
+
+                <span class="unit">Requests</span>
+
+                <div class="percentage">
+                    <strong>
+                        {{ (((counts.other + counts.casual) / total * 100)|round(1)) if total else 0 }}%
+                    </strong>
+                    of total requests
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SEPARATE LEAVE TYPES SECTION -->
+
+        <section class="leave-types-section">
+
+            <div class="summary-card leave-types-card" id="leave-types">
+
+                <div class="panel-heading">
+                    <h3>Leave Types</h3>
+                    <span class="more">···</span>
+                </div>
+
+                <div class="donut-wrap">
+
+                    <div class="donut"
+                         style="background: conic-gradient(
+                            #17365d 0% {{ annual_end }}%,
+                            #2563eb {{ annual_end }}% {{ sick_end }}%,
+                            #38a6a0 {{ sick_end }}% {{ other_end }}%,
+                            #dce5f0 {{ other_end }}% 100%
+                         );">
+
+                        <div class="donut-center">
+                            <strong>{{ total }}</strong>
+                            <span>Requests</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="type-legend">
+
+                    <div class="legend-row">
+                        <div class="legend-name">
+                            <span class="legend-dot" style="background:#17365d"></span>
+                            Annual / Earned
+                        </div>
+                        <span class="legend-value">{{ counts.annual }}</span>
+                    </div>
+
+                    <div class="legend-row">
+                        <div class="legend-name">
+                            <span class="legend-dot" style="background:#2563eb"></span>
+                            Sick Leave
+                        </div>
+                        <span class="legend-value">{{ counts.sick }}</span>
+                    </div>
+
+                    <div class="legend-row">
+                        <div class="legend-name">
+                            <span class="legend-dot" style="background:#38a6a0"></span>
+                            Other Leave
+                        </div>
+                        <span class="legend-value">{{ counts.other }}</span>
+                    </div>
+
+                    <div class="legend-row">
+                        <div class="legend-name">
+                            <span class="legend-dot" style="background:#dce5f0"></span>
+                            Casual Leave
+                        </div>
+                        <span class="legend-value">{{ counts.casual }}</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MIDDLE DASHBOARD -->
+
+        <section class="middle-grid">
+
+            <!-- WEEKLY OVERVIEW -->
+
+            <div class="panel" id="weekly-overview">
+
+                <div class="panel-heading">
+                    <h3>Leave Overview</h3>
+                    <span class="chart-filter">Last 7 Days</span>
+                </div>
+
+                <div class="chart-area" id="weeklyChart">
+
+                    <div class="bar-group">
+                        <div class="bar active" style="height:45%"></div>
+                        <span class="bar-label">Mon</span>
+                    </div>
+
+                    <div class="bar-group">
+                        <div class="bar" style="height:30%"></div>
+                        <span class="bar-label">Tue</span>
+                    </div>
+
+                    <div class="bar-group">
+                        <div class="bar" style="height:55%"></div>
+                        <span class="bar-label">Wed</span>
+                    </div>
+
+                    <div class="bar-group">
+                        <div class="bar active" style="height:70%"></div>
+                        <span class="bar-label">Thu</span>
+                    </div>
+
+                    <div class="bar-group">
+                        <div class="bar" style="height:40%"></div>
+                        <span class="bar-label">Fri</span>
+                    </div>
+
+                </div>
+
+                <div class="chart-caption">
+                    Leave applications received during the week
+                </div>
+
+            </div>
+
+
+            <!-- CALENDAR -->
+
+            <div class="panel" id="calendar-section">
+
+                <div class="calendar-header">
+
+                    <strong id="calendarMonth">Calendar</strong>
+
+                    <div class="calendar-buttons">
+
+                        <button type="button"
+                                id="prevMonth"
+                                aria-label="Previous month">‹</button>
+
+                        <button type="button"
+                                id="nextMonth"
+                                aria-label="Next month">›</button>
+
+                    </div>
+
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid"></div>
+
+                <div class="calendar-legend">
+
+                    <span>
+                        <i class="legend-indicator"></i>
+                        Today
+                    </span>
+
+                    <span>
+                        <i class="legend-indicator red"></i>
+                        Leave dates
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- EMPLOYEE LEAVES -->
+
+            <div class="panel employee-panel" id="employee-section">
+
+                <div class="panel-heading">
+                    <h3>Employee Leaves</h3>
+                    <span class="more">···</span>
+                </div>
+
+                <div class="employee-list">
+
+                    {% for leave in leave_requests[:4] %}
+
+                    <div class="employee-leave">
+
+                        <div class="employee-avatar">
+                            {{ (leave.full_name or 'Employee')[0]|upper }}
+                        </div>
+
+                        <div class="employee-leave-info">
+
+                            <strong>{{ leave.full_name }}</strong>
+
+                            <small>
+                                {{ leave.leave_type }}
+                                · {{ leave.start_date }} to {{ leave.end_date }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="no-data">
+                        No employee leave requests yet.
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- LEAVE ACTIVITY TABLE -->
+
+        <section class="panel activity-panel" id="leave-activity">
+
+            <div class="panel-heading">
+
+                <h3>Leave Activity</h3>
+
+                <div class="activity-tools">
+
+                    <input
+                        type="text"
+                        class="table-search"
+                        id="tableSearch"
+                        placeholder="Search employee, leave type..."
+                        aria-label="Search leave requests">
+
+                    <select
+                        class="filter-select"
+                        id="statusFilter"
+                        aria-label="Filter by status">
+
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table id="leaveTable">
+
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Submit Date</th>
+                            <th>Period</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for leave in leave_requests %}
+
+                        <tr
+                            class="leave-row"
+                            data-search="{{ leave.full_name|lower }} {{ leave.leave_type|lower }} {{ (leave.reason or '')|lower }}"
+                            data-status="{{ leave.status|lower }}">
+
+                            <td>
+                                <div class="employee-cell">
+
+                                    <div class="employee-avatar">
+                                        {{ leave.full_name[0]|upper if leave.full_name else 'E' }}
+                                    </div>
+
+                                    <div>
+                                        <strong>{{ leave.full_name }}</strong>
+                                        <small>Employee</small>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            <td>{{ leave.leave_type }}</td>
+
+                            <td>
+                                {% if leave.applied_at %}
+                                    {{ leave.applied_at.strftime('%d %b %Y, %I:%M %p') }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ leave.start_date }} – {{ leave.end_date }}
+                            </td>
+
+                            <td
+                                class="duration-cell"
+                                data-start="{{ leave.start_date }}"
+                                data-end="{{ leave.end_date }}">
+                                Calculating...
+                            </td>
+
+                            <td>{{ leave.reason or '-' }}</td>
+
+                            <td>
+                                <span class="table-status status-{{ leave.status|lower }}">
+                                    {{ leave.status }}
+                                </span>
+                            </td>
+
+                            <td>
+
+                                {% if leave.status|lower == 'pending' %}
+
+                                <div class="action-group">
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('manage_leave', leave_id=leave.leave_id, action='approve') }}"
+                                        onsubmit="return confirm('Are you sure you want to approve this leave request?');">
+
+                                        <button class="approve-btn" type="submit">
+                                            Approve
+                                        </button>
+
+                                    </form>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('manage_leave', leave_id=leave.leave_id, action='reject') }}"
+                                        onsubmit="return confirm('Are you sure you want to reject this leave request?');">
+
+                                        <button class="reject-btn" type="submit">
+                                            Reject
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                                {% else %}
+                                    <span>—</span>
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="8" class="no-data">
+                                No leave applications available.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+                <div id="noResults"
+                     class="no-data"
+                     style="display:none;">
+                    No matching leave applications found.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="footer">
+            © 2026 TeamHub. All rights reserved.
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- CALENDAR DATA -->
+
+<script type="application/json" id="leaveData">
+[
+    {% for leave in leave_requests %}
+    {
+        "start": {{ leave.start_date|string|tojson }},
+        "end": {{ leave.end_date|string|tojson }},
+        "status": {{ leave.status|string|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+
+<!-- JAVASCRIPT -->
+
+<script src="{{ url_for('static', filename='js/manager_dashboard.js') }}?v=3"></script>
+</body>
+</html>

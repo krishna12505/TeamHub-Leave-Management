@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TeamHub | Sign In</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="login-page">
+
+    <div class="login-wrapper">
+
+        <!-- LEFT BRANDING SECTION -->
+
+        <div class="login-brand">
+
+            <div class="brand-logo">
+                <span class="brand-mark">✣</span>
+                <span>TeamHub</span>
+            </div>
+
+            <div class="brand-content">
+
+                <span class="brand-tag">WORKFORCE MANAGEMENT</span>
+
+                <h1>
+                    Manage your work.<br>
+                    <span>Manage your time.</span>
+                </h1>
+
+                <p>
+                    A smarter way to manage employee leaves,
+                    track requests and keep your workplace
+                    organized.
+                </p>
+
+                <div class="brand-features">
+
+                    <div class="feature">
+                        <div class="feature-icon">01</div>
+                        <div>
+                            <h3>Easy Leave Management</h3>
+                            <p>Apply and track leave requests easily.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">02</div>
+                        <div>
+                            <h3>Centralized Dashboard</h3>
+                            <p>Everything organized in one place.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">03</div>
+                        <div>
+                            <h3>Role-Based Access</h3>
+                            <p>Dedicated access for employees and managers.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="brand-footer">
+                © 2026 TeamHub. All rights reserved.
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT LOGIN SECTION -->
+
+        <div class="login-form-section">
+
+            <div class="login-card">
+
+                <div class="mobile-logo">
+                    <div class="logo-icon">T</div>
+                    <span>TeamHub</span>
+                </div>
+
+                <span class="welcome-label">WELCOME BACK</span>
+
+                <h2>Sign in to your account</h2>
+
+                <p class="login-description">
+                    Enter your credentials to access your workspace.
+                </p>
+
+
+                <!-- FLASH MESSAGES -->
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+
+                <!-- LOGIN FORM -->
+
+                <form method="POST" action="{{ url_for('login') }}">
+
+                    <div class="form-group">
+
+                        <label for="email">Work Email</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="name@company.com"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <div class="password-label">
+
+                            <label for="password">Password</label>
+
+                        </div>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button type="submit" class="login-button">
+
+                        Sign In
+
+                        <span class="button-arrow">→</span>
+
+                    </button>
+
+                </form>
+
+
+                <div class="login-security">
+
+                    <span class="security-icon">✓</span>
+
+                    Your account is protected with secure authentication.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

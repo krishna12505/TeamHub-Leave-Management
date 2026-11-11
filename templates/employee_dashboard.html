@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TeamHub | Employee Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="employee-dashboard-page">
+
+    <div class="dashboard">
+
+        <!-- HEADER -->
+        <header class="dashboard-header">
+
+            <div class="brand-logo">
+                <span class="brand-mark-employee">✣</span>
+                <span>TeamHub</span>
+            </div>
+
+            <div class="header-right">
+                <div class="welcome-text">
+                    <span>Welcome back,</span>
+                    <strong>{{ name }}</strong>
+                </div>
+
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    Logout
+                </a>
+            </div>
+
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-content">
+
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
+            <!-- PAGE TITLE -->
+            <section class="page-heading">
+                <div>
+                    <h1>Employee Dashboard</h1>
+                    <p>Manage your leave requests and monitor your leave balance.</p>
+                </div>
+
+                <a href="{{ url_for('apply_leave') }}" class="primary-btn">
+                    + Apply for Leave
+                </a>
+            </section>
+
+            <!-- LEAVE BALANCE -->
+            <section class="dashboard-cards">
+
+                <div class="dashboard-card total-card">
+                    <div class="card-icon">TL</div>
+                    <div>
+                        <p>Total Leaves</p>
+                        <h2>{{ balance.total_leaves if balance else 20 }}</h2>
+                        <span>Annual leave allocation</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card used-card">
+                    <div class="card-icon">UL</div>
+                    <div>
+                        <p>Used Leaves</p>
+                        <h2>{{ balance.used_leaves if balance else 0 }}</h2>
+                        <span>Approved leave days used</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card remaining-card">
+                    <div class="card-icon">RL</div>
+                    <div>
+                        <p>Remaining Leaves</p>
+                        <h2>{{ balance.remaining_leaves if balance else 20 }}</h2>
+                        <span>Available leave days</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- LEAVE REQUESTS -->
+            <section class="leave-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>My Leave Requests</h2>
+                        <p>Track the status and details of your applications.</p>
+                    </div>
+
+                    <span class="request-count">
+                        {{ leave_requests|length }} Requests
+                    </span>
+                </div>
+
+                {% if leave_requests %}
+
+                    <div class="table-container">
+
+                        <table class="leave-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Applied On</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for leave in leave_requests %}
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>{{ leave.leave_type }}</strong>
+                                        </td>
+
+                                        <td>
+                                            {{ leave.start_date.strftime('%d %b %Y') if leave.start_date else 'N/A' }}
+                                        </td>
+
+                                        <td>
+                                            {{ leave.end_date.strftime('%d %b %Y') if leave.end_date else 'N/A' }}
+                                        </td>
+
+                                        <td>
+                                            {{ leave.applied_at.strftime('%d %b %Y') if leave.applied_at else 'N/A' }}
+                                            <small class="applied-time">
+                                                {{ leave.applied_at.strftime('%I:%M %p') if leave.applied_at else '' }}
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            {% if leave.start_date and leave.end_date %}
+                                                {{ leave.working_days }}
+                                                Day(s)
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge {{ leave.status|lower }}">
+                                                {{ leave.status }}
+                                            </span>
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <div class="empty-icon">LR</div>
+                        <h3>No Leave Requests Yet</h3>
+                        <p>You haven't submitted any leave applications.</p>
+
+                        <a href="{{ url_for('apply_leave') }}" class="primary-btn">
+                            Apply for Your First Leave
+                        </a>
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+            <!-- FOOTER -->
+            <footer class="dashboard-footer">
+                <p>TeamHub &copy; 2026. Employee Leave Management System.</p>
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

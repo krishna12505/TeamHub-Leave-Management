@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TeamHub | Leave Application</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--background, #f4f6fb);
+            color: var(--text, #1e293b);
+        }
+
+
+        .leave-navbar {
+            min-height: 72px;
+            background: var(--navy, #172554);
+            color: white;
+            padding: 0 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .leave-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 11px;
+            background: white;
+            color: #010c33;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            box-shadow: 0 4px 10px rgba(23, 54, 93, 0.18);
+        }
+
+        .leave-brand h2 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .leave-brand p {
+            margin: 3px 0 0;
+            color: #cbd5e1;
+            font-size: 11px;
+        }
+
+        .leave-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .leave-user-name {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .logout-link {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 9px 16px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+   
+        .leave-page {
+            min-height: calc(100vh - 72px);
+            padding: 35px 7% 55px;
+        }
+
+        .leave-main {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+
+        .back-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 22px;
+            padding: 10px 17px;
+            background: white;
+            color: var(--navy, #172554);
+            border: 1px solid var(--border, #e5eaf2);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: var(--shadow, 0 4px 18px rgba(15, 23, 42, 0.045));
+            transition: 0.2s;
+        }
+
+        .back-dashboard:hover {
+            background: #eff4ff;
+            border-color: var(--primary, #3157d5);
+            color: var(--primary, #3157d5);
+            transform: translateY(-1px);
+        }
+
+        /* PAGE HEADING */
+
+        .leave-heading {
+            margin-bottom: 24px;
+        }
+
+        .leave-heading h1 {
+            margin: 0 0 8px;
+            color: var(--navy, #172554);
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+        }
+
+        .leave-heading p {
+            margin: 0;
+            color: var(--muted, #64748b);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /*APPLICATION CARD*/
+
+        .leave-card {
+            background: white;
+            border: 1px solid var(--border, #e5eaf2);
+            border-radius: 13px;
+            padding: 30px;
+            box-shadow: var(--shadow, 0 4px 18px rgba(15, 23, 42, 0.045));
+        }
+
+        .card-heading {
+            margin-bottom: 25px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border, #e5eaf2);
+        }
+
+        .card-heading h2 {
+            margin: 0 0 6px;
+            color: var(--navy, #172554);
+            font-size: 18px;
+            font-weight: 750;
+        }
+
+        .card-heading p {
+            margin: 0;
+            color: var(--muted, #64748b);
+            font-size: 13px;
+        }
+
+        /*FORM*/
+
+        .leave-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 21px;
+        }
+
+        .leave-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leave-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .leave-field label {
+            color: var(--text, #1e293b);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .leave-field input,
+        .leave-field select,
+        .leave-field textarea {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid var(--border, #e5eaf2);
+            border-radius: 8px;
+            background: white;
+            color: var(--text, #1e293b);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .leave-field input:focus,
+        .leave-field select:focus,
+        .leave-field textarea:focus {
+            border-color: var(--primary, #3157d5);
+            box-shadow: 0 0 0 3px rgba(49, 87, 213, 0.10);
+        }
+
+        .leave-field textarea {
+            min-height: 115px;
+            resize: vertical;
+        }
+
+        .leave-field input::placeholder,
+        .leave-field textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        /*NOTICE*/
+
+        .leave-notice {
+            margin-top: 22px;
+            padding: 13px 15px;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            color: #1e40af;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /*FORM BUTTONS*/
+
+        .leave-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border, #e5eaf2);
+        }
+
+        .submit-leave,
+        .cancel-leave {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 21px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .submit-leave {
+            border: none;
+            background: var(--primary, #3157d5);
+            color: white;
+        }
+
+        .submit-leave:hover {
+            background: var(--primary-dark, #2445b5);
+            transform: translateY(-1px);
+        }
+
+        .cancel-leave {
+            background: white;
+            color: var(--muted, #64748b);
+            border: 1px solid var(--border, #e5eaf2);
+        }
+
+        .cancel-leave:hover {
+            background: #f8fafc;
+            color: var(--navy, #172554);
+        }
+
+        /*FLASH MESSAGES*/
+
+        .leave-flash {
+            margin-bottom: 18px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .leave-flash.success {
+            color: var(--success, #15803d);
+            background: var(--success-bg, #ecfdf5);
+            border: 1px solid #bbf7d0;
+        }
+
+        .leave-flash.error,
+        .leave-flash.danger {
+            color: var(--danger, #dc2626);
+            background: var(--danger-bg, #fef2f2);
+            border: 1px solid #fecaca;
+        }
+
+        /*RESPONSIVE DESIGN*/
+
+        @media (max-width: 700px) {
+            .leave-navbar {
+                padding: 0 5%;
+            }
+
+            .leave-page {
+                padding: 28px 5% 40px;
+            }
+
+            .leave-card {
+                padding: 22px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .leave-navbar {
+                min-height: 65px;
+                padding: 10px 5%;
+                flex-wrap: wrap;
+            }
+
+            .leave-brand h2 {
+                font-size: 19px;
+            }
+
+            .leave-brand p {
+                font-size: 10px;
+            }
+
+            .leave-user {
+                gap: 8px;
+            }
+
+            .leave-user-name {
+                display: none;
+            }
+
+            .leave-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .leave-field.full-width {
+                grid-column: auto;
+            }
+
+            .leave-heading h1 {
+                font-size: 23px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .leave-actions {
+                flex-direction: column-reverse;
+            }
+
+            .submit-leave,
+            .cancel-leave {
+                width: 100%;
+            }
+
+            .leave-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="leave-navbar">
+
+        <div class="leave-brand">
+            <span class="brand-mark">✣</span>
+
+            <div>
+                <h2>TeamHub</h2>
+                <p>Employee Management Portal</p>
+            </div>
+        </div>
+
+        <div class="leave-user">
+            <span class="leave-user-name">
+                {{ session.get('name', 'Employee') }}
+            </span>
+
+            <a href="{{ url_for('logout') }}" class="logout-link">
+                Logout
+            </a>
+        </div>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="leave-page">
+
+        <div class="leave-main">
+
+            <!-- BACK TO DASHBOARD BUTTON IN BODY -->
+            <a href="{{ url_for('employee_dashboard') }}"
+               class="back-dashboard">
+                <span>←</span>
+                Back to Dashboard
+            </a>
+
+
+            <!-- PAGE HEADING -->
+            <div class="leave-heading">
+                <h1>Apply for Leave</h1>
+                <p>
+                    Submit your leave application by providing the required
+                    details below.
+                </p>
+            </div>
+
+
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="leave-flash {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+
+            <!-- LEAVE APPLICATION CARD -->
+            <section class="leave-card">
+
+                <div class="card-heading">
+                    <h2>Leave Application Form</h2>
+                    <p>Enter your leave details carefully.</p>
+                </div>
+
+
+                <form method="POST"
+                      action="{{ url_for('apply_leave') }}">
+
+                    <div class="leave-form-grid">
+
+                        <!-- LEAVE TYPE -->
+                        <div class="leave-field full-width">
+                            <label for="leave_type">Leave Type</label>
+                            <select name="leave_type" id="leave_type" required>
+                                <option value="">Select Leave Type</option>
+                                <option value="Casual">Casual Leave</option>
+                                <option value="Sick">Sick Leave</option>
+                                <option value="Earned">Earned Leave</option>
+                                <option value="Personal">Personal Leave</option>
+                            </select>
+                            
+                        </div>
+
+
+                        <!-- START DATE -->
+                        <div class="leave-field">
+                            <label for="start_date">Start Date</label>
+
+                            <input type="date"
+                                   id="start_date"
+                                   name="start_date"
+                                   required>
+                        </div>
+
+
+                        <!-- END DATE -->
+                        <div class="leave-field">
+                            <label for="end_date">End Date</label>
+
+                            <input type="date"
+                                   id="end_date"
+                                   name="end_date"
+                                   required>
+                        </div>
+
+
+                        <!-- REASON -->
+                        <div class="leave-field full-width">
+                            <label for="reason">Reason for Leave</label>
+
+                            <textarea id="reason"
+                                      name="reason"
+                                      placeholder="Enter the reason for your leave..."
+                                      required></textarea>
+                        </div>
+
+                    </div>
+
+
+                    <!-- NOTICE -->
+                    <div class="leave-notice">
+                        Please ensure that your start date and end date
+                        are correct. Your application will be sent to
+                        your manager for approval.
+                    </div>
+
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="leave-actions">
+
+                        <a href="{{ url_for('employee_dashboard') }}"
+                           class="cancel-leave">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="submit-leave">
+                            Submit Application
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- DATE VALIDATION -->
+    <script>
+        const startDate = document.getElementById("start_date");
+        const endDate = document.getElementById("end_date");
+
+        // Prevent selecting a past start date.
+        const today = new Date();
+        const localToday = new Date(
+            today.getTime() - today.getTimezoneOffset() * 60000
+        ).toISOString().split("T")[0];
+
+        startDate.min = localToday;
+
+        // End date cannot be earlier than start date.
+        startDate.addEventListener("change", function () {
+            endDate.min = this.value;
+
+            if (endDate.value && endDate.value < this.value) {
+                endDate.value = this.value;
+            }
+        });
+    </script>
+
+</body>
+</html>
